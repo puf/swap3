@@ -27,7 +27,7 @@ export default class Match3Game extends React.Component<GameProps, GameState> {
     super(props)
     let gemSprites = new Sprite({ url: props.gemSpriteUrl, colCount: 8, rowCount: 6, spriteWidth: 32, spriteHeight: 32 })
     this.state = { 
-      screen: { width: 160, height: 240, ratio: window.devicePixelRatio || 1 }, 
+      screen: { width: 200, height: 240, ratio: window.devicePixelRatio || 1 }, 
       lastUpdate: Date.now(),
       gameboard: new Gameboard({ colCount: props.colCount, rowCount: props.rowCount, gemSize: 32, boardPadding: 25, gemSprites }),
       speed: 1.0
@@ -45,6 +45,7 @@ export default class Match3Game extends React.Component<GameProps, GameState> {
     const elapsed = now - this.state.lastUpdate
 
     this.state.gameboard.update(elapsed * this.state.speed)
+    this.state.gameboard.debugMessages["GAME"] = `speed: ${this.state.speed}`
 
     this.state.gameboard.draw(this.canvas.getContext('2d'))
 
@@ -61,7 +62,7 @@ export default class Match3Game extends React.Component<GameProps, GameState> {
       this.setState({ speed: this.state.speed / 2 });
     }
     else if (e.key === 'c') {
-       this.setState({ speed: this.state.speed * 2 });
+      this.setState({ speed: this.state.speed * 2 });
     }
     else { // TODO: or should we always pass keys to the gameboard, so you can press key combos?
       this.state.gameboard.handleKeyPress(e.key)

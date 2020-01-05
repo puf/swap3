@@ -22,6 +22,7 @@ export default class Gameboard {
   gemsSprite: Sprite
   selected: Point = new Point()
   marked: Gem; // reference to marked gem
+  public debugMessages = {} // key=segment, value=newline separated message
   time: number = 0
   constructor(public props: GameboardProps) {
     this.gems = []
@@ -202,25 +203,32 @@ export default class Gameboard {
     // write debug messages
     let msg = ''
     if (this.marked) {
-      msg += this.marked.toString() + '\n'
+      msg += 'GEM\n'+this.marked.toString() + '\n'
+      this.debugMessages["GEM"] = this.marked.toString()
     }
 
+    if (Object.keys(this.debugMessages).length > 0) {
+      context.setTransform(1, 0, 0, 1, 0, 0)
+      context.translate(
+        2*this.props.boardPadding+this.props.colCount*this.props.gemSize, 
+        this.props.boardPadding
+      );
 
-    context.setTransform(1, 0, 0, 1, 0, 0)
-    context.translate(
-      2*this.props.boardPadding+this.props.colCount*this.props.gemSize, 
-      2*this.props.boardPadding
-    );
+      context.strokeStyle = 'white'
+      context.font = '14px serif'
+      context.clearRect(-10, -10, 120, this.props.colCount*this.props.gemSize)
+      let offset = 0
 
-    context.strokeStyle = 'white'
-    context.font = '14px serif'
-    context.clearRect(-10, -10, 120, 120)
-    let lines = msg.split('\n')
-    let offset = 0;
-    lines.forEach((line) => {
-      context.strokeText(line, 0, offset)
-      offset += 15
-    })
-
+      Object.keys(this.debugMessages).forEach((key, i) => {
+        context.strokeText(key, 0, offset)
+        offset += 15
+        let lines = this.debugMessages[key].split('\n')
+        lines.forEach((line) => {
+          context.strokeText(line, 0, offset)
+          offset += 15
+        })
+        offset += 15
+      })
+    }
   }
 }
