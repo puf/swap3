@@ -3,13 +3,14 @@ import Gameboard from './Gameboard';
 import Sprite from './Sprite';
 
 interface GameState {
-  screen: GameScreenState;
-  lastUpdate: number;
-  gameboard: Gameboard;
-  gemSpites: Sprite;
+  screen: GameScreenState
+  lastUpdate: number
+  gameboard: Gameboard
+  gemSpites: Sprite
+  speed: number
 }
 interface GameScreenState {
-  width, height, ratio: any;
+  width, height, ratio: any
 }
 interface GameProps { 
   rowCount: number
@@ -18,9 +19,9 @@ interface GameProps {
 }
 //export default ({ name }) => <h1>Hello {name}!</h1>;
 export default class Match3Game extends React.Component<GameProps, GameState> {
-  public canvas: HTMLCanvasElement;
-  public ctx: CanvasRenderingContext2D;
-  public canvasBoundingBox: ClientRect;
+  public canvas: HTMLCanvasElement
+  public ctx: CanvasRenderingContext2D
+  public canvasBoundingBox: ClientRect
 
   constructor(props: GameProps){
     super(props)
@@ -29,6 +30,7 @@ export default class Match3Game extends React.Component<GameProps, GameState> {
       screen: { width: 160, height: 240, ratio: window.devicePixelRatio || 1 }, 
       lastUpdate: Date.now(),
       gameboard: new Gameboard({ colCount: props.colCount, rowCount: props.rowCount, gemSize: 32, boardPadding: 25, gemSprites }),
+      speed: 1.0
     } as GameState
   }
   componentDidMount() {
@@ -42,8 +44,7 @@ export default class Match3Game extends React.Component<GameProps, GameState> {
     const now = Date.now()
     const elapsed = now - this.state.lastUpdate
 
-    // TODO: update game objects, render game
-    this.state.gameboard.update(elapsed);
+    this.state.gameboard.update(elapsed * this.state.speed)
 
     this.state.gameboard.draw(this.canvas.getContext('2d'))
 
@@ -56,7 +57,15 @@ export default class Match3Game extends React.Component<GameProps, GameState> {
     this.state.gameboard.handleClick({ type: e.type, x: e.clientX - boundingBox.left, y: e.clientY - boundingBox.top})
   }
   handleKeyPress(e: React.KeyboardEvent<HTMLElement>) {
-    this.state.gameboard.handleKeyPress(e.key);
+    if (e.key === 'z') {
+      this.setState({ speed: this.state.speed / 2 });
+    }
+    else if (e.key === 'c') {
+       this.setState({ speed: this.state.speed * 2 });
+    }
+    else { // TODO: or should we always pass keys to the gameboard, so you can press key combos?
+      this.state.gameboard.handleKeyPress(e.key)
+    }
   }
   render() {
         return (

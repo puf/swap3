@@ -83,28 +83,9 @@ export default class Gameboard {
         this.selected.row = this.selected.col = -1
       }
     }
-    if (key === 'w') {
-      if (this.selected.row !== -1 && this.selected.col !== -1) {
-        console.log("Selected "+this.selected.row+", "+this.selected.col+" - color: "+this.gems[this.selected.row][this.selected.col].color)
-        console.log("Color under "+this.gems[this.selected.row+1][this.selected.col].color)
-      }
-      else {
-        console.log("No gem selected")
-      }
-    }
     if (key == "m") {
       this.marked = this.gems[this.selected.row][this.selected.col];
-      //console.log("Marked: "+this.selected.row+", "+this.selected.col)
     }
-    if (key === 'z') {
-        Gem.msToDrop *= 2
-        Gem.msToHalfDrop *= 2
-    }
-    if (key === 'c') {
-        Gem.msToDrop /= 2
-        Gem.msToHalfDrop /= 2
-    }
-
   }
   /// Calls the callback for each gem
   forEach(callback) {
@@ -212,27 +193,34 @@ export default class Gameboard {
       }
 
       if (this.marked === gem) {
-        context.strokeStyle = 'blue';
+        context.strokeStyle = 'blue'
         context.strokeRect(0, 0, this.props.gemSize, this.props.gemSize)
       }
 
     })
+
+    // write debug messages
+    let msg = ''
     if (this.marked) {
-      context.setTransform(1, 0, 0, 1, 0, 0)
-      context.translate(
-        2*this.props.boardPadding+this.props.colCount*this.props.gemSize, 
-        2*this.props.boardPadding
-      );
-      context.strokeStyle = 'white'
-      context.font = '14px serif'
-      context.clearRect(-10, -10, 120, 120)
-      let msg = this.marked.toString()
-      let lines = msg.split('\n')
-      let offset = 0;
-      lines.forEach((line) => {
-        context.strokeText(line, 0, offset)
-        offset += 15
-      })
+      msg += this.marked.toString() + '\n'
     }
+
+
+    context.setTransform(1, 0, 0, 1, 0, 0)
+    context.translate(
+      2*this.props.boardPadding+this.props.colCount*this.props.gemSize, 
+      2*this.props.boardPadding
+    );
+
+    context.strokeStyle = 'white'
+    context.font = '14px serif'
+    context.clearRect(-10, -10, 120, 120)
+    let lines = msg.split('\n')
+    let offset = 0;
+    lines.forEach((line) => {
+      context.strokeText(line, 0, offset)
+      offset += 15
+    })
+
   }
 }
