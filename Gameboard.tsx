@@ -191,6 +191,15 @@ export default class Gameboard {
   draw(context: CanvasRenderingContext2D) {
     //context.save();
     this.time++;
+
+    context.setTransform(1, 0, 0, 1, 0, 0)
+    context.fillStyle = '#303030'
+    context.fillRect(
+      this.props.boardPadding, 
+      this.props.boardPadding,
+      this.props.colCount*this.props.gemSize, 
+      this.props.rowCount*this.props.gemSize);
+
     this.forEach((gem, row, col) => {
       context.setTransform(1, 0, 0, 1, 0, 0)
       context.translate(
@@ -200,12 +209,6 @@ export default class Gameboard {
       let isSelected = (row == this.selected.row && col == this.selected.col);
       if (this.gems[row][col].isOccupied()) {
         this.gems[row][col].draw(context, isSelected)
-      }
-      else {
-        if (row === 0 || this.gems[row-1][col].status !== Gem.Status.Dropping) {
-          context.fillStyle = '#303030'
-          context.fillRect(0, 0, this.props.gemSize, this.props.gemSize)
-        }
       }
 
       if (this.marked === gem) {
