@@ -29,8 +29,8 @@ export default class Match3Game extends React.Component<GameProps, GameState> {
     this.state = { 
       screen: { width: 200, height: 240, ratio: window.devicePixelRatio || 1 }, 
       lastUpdate: Date.now(),
-      gameboard: new Gameboard({ colCount: props.colCount, rowCount: props.rowCount, gemSize: 32, boardPadding: 25, gemSprites }),
-      speed: 1.0
+      gameboard: new Gameboard({ colCount: props.colCount, rowCount: props.rowCount, gemSize: 32, boardPadding: 25, gemSprites, score: 0 }),
+      speed: 2.0
     } as GameState
   }
   componentDidMount() {

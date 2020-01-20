@@ -7,7 +7,8 @@ interface GameboardProps {
   rowCount: number,
   gemSize: number,
   boardPadding: number,
-  gemSprites: Sprite
+  gemSprites: Sprite,
+  score: number,
 }
 class Point {
   constructor() {
@@ -18,7 +19,7 @@ class Point {
 }
 
 export default class Gameboard {
-  gems: Gem[][] // gem[row][col]
+  gems: Gem[][] // gems[row][col]
   gemsSprite: Sprite
   selected: Point = new Point()
   marked: Gem; // reference to marked gem
@@ -136,6 +137,7 @@ export default class Gameboard {
         if (!this.gems[pt.row][pt.col]) debugger // that'd be wrong
         // TODO: explode
         this.gems[pt.row][pt.col].color = -1
+        this.props.score += 10;
       })
     }
       
@@ -144,8 +146,6 @@ export default class Gameboard {
       for (var col=0; col < this.props.colCount; col++) {
         let gem = this.gems[row][col]
         let down = this.gems[row+1][col]
-        //if (this.marked == gem) debugger
-        //if (gem.isOccupied() && !down.isOccupied()) {
         if (gem.isOccupied() && gem.status !== Gem.Status.Dropping && down.canBeDroppedInto()) {
           droppedGemCount += 1;
           console.log(this.time+": Dropping from "+row+", "+col)
@@ -164,8 +164,12 @@ export default class Gameboard {
       }
     })
 
+    this.props.score += droppedGemCount;
+    console.log(`Score: ${this.props.score}`)
+
     // since this has changed the board, scan again
     if (droppedGemCount > 0) {
+      setTimeout(() => { this.scan() }, 0)
       setTimeout(() => { this.scan() }, Gem.msToHalfDrop)
       setTimeout(() => { this.scan() }, Gem.msToDrop)
     }
@@ -197,27 +201,30 @@ export default class Gameboard {
         context.strokeStyle = 'blue'
         context.strokeRect(0, 0, this.props.gemSize, this.props.gemSize)
       }
-
     })
 
+    // clear the right panel for score and debug info
+    context.setTransform(1, 0, 0, 1, 0, 0)
+    context.translate(
+      2*this.props.boardPadding+this.props.colCount*this.props.gemSize, 
+      2*this.props.boardPadding
+    );
+
+    context.strokeStyle = 'white'
+    context.font = '14px serif'
+    context.clearRect(-10, -10, 120, this.props.colCount*this.props.gemSize)
+
+    // show the score at the top
+    context.strokeText(`Score: ${this.props.score}`, 0, 0)
+    //this.debugMessages["SCORE"] = `Score: ${this.props.score}`
+
     // write debug messages
-    let msg = ''
     if (this.marked) {
-      msg += 'GEM\n'+this.marked.toString() + '\n'
       this.debugMessages["GEM"] = this.marked.toString()
     }
 
     if (Object.keys(this.debugMessages).length > 0) {
-      context.setTransform(1, 0, 0, 1, 0, 0)
-      context.translate(
-        2*this.props.boardPadding+this.props.colCount*this.props.gemSize, 
-        this.props.boardPadding
-      );
-
-      context.strokeStyle = 'white'
-      context.font = '14px serif'
-      context.clearRect(-10, -10, 120, this.props.colCount*this.props.gemSize)
-      let offset = 0
+      let offset = 30
 
       Object.keys(this.debugMessages).forEach((key, i) => {
         context.strokeText(key, 0, offset)
